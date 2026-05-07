@@ -1,0 +1,1726 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>旅伴記帳｜Travel Budget App</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --surface: rgba(255, 255, 255, 0.92);
+      --surface-solid: #ffffff;
+      --text: #101828;
+      --muted: #667085;
+      --line: #e4e7ec;
+      --primary: #2563eb;
+      --primary-2: #14b8a6;
+      --primary-soft: #dbeafe;
+      --danger: #ef4444;
+      --danger-soft: #fee2e2;
+      --warning: #f59e0b;
+      --success: #10b981;
+      --shadow: 0 18px 45px rgba(16, 24, 40, 0.10);
+      --shadow-soft: 0 10px 24px rgba(16, 24, 40, 0.08);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --bottom-nav-height: 76px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(20, 184, 166, 0.26), transparent 28%),
+        radial-gradient(circle at top right, rgba(37, 99, 235, 0.28), transparent 32%),
+        linear-gradient(180deg, #eef6ff 0%, var(--bg) 330px);
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 18px 16px calc(var(--bottom-nav-height) + 24px);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding: 2px 2px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+      box-shadow: 0 14px 26px rgba(37, 99, 235, 0.25);
+      font-size: 22px;
+    }
+
+    .brand-title {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      line-height: 1.05;
+    }
+
+    .brand-subtitle {
+      margin-top: 3px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 11px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.72);
+      border: 1px solid rgba(255,255,255,0.95);
+      color: #344054;
+      font-size: 12px;
+      font-weight: 800;
+      box-shadow: var(--shadow-soft);
+      white-space: nowrap;
+    }
+
+    .page {
+      display: none;
+      animation: fadeUp 0.24s ease both;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius-xl);
+      padding: 20px;
+      background:
+        linear-gradient(135deg, rgba(37, 99, 235, 0.95), rgba(20, 184, 166, 0.92)),
+        url("data:image/svg+xml,%3Csvg width='260' height='260' viewBox='0 0 260 260' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='white' stroke-opacity='0.22' stroke-width='2'%3E%3Cpath d='M30 180 C90 100 170 220 230 80'/%3E%3Ccircle cx='70' cy='88' r='22'/%3E%3Ccircle cx='190' cy='162' r='34'/%3E%3C/g%3E%3C/svg%3E");
+      color: #fff;
+      box-shadow: 0 22px 50px rgba(37, 99, 235, 0.24);
+      margin-bottom: 14px;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      right: -56px;
+      top: -52px;
+      background: rgba(255,255,255,0.16);
+    }
+
+    .trip-title {
+      position: relative;
+      z-index: 1;
+      margin: 0;
+      font-size: 27px;
+      font-weight: 950;
+      letter-spacing: -0.8px;
+      line-height: 1.15;
+    }
+
+    .trip-meta {
+      position: relative;
+      z-index: 1;
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: rgba(255,255,255,0.9);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .hero-stats {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .hero-stat {
+      padding: 13px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      backdrop-filter: blur(12px);
+    }
+
+    .hero-label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.78);
+      font-weight: 750;
+      margin-bottom: 5px;
+    }
+
+    .hero-value {
+      font-size: 22px;
+      font-weight: 950;
+      word-break: break-all;
+    }
+
+    .budget-progress {
+      position: relative;
+      z-index: 1;
+      margin-top: 16px;
+    }
+
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 800;
+      color: rgba(255,255,255,0.86);
+      margin-bottom: 8px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 11px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.25);
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      width: 0%;
+      background: #fff;
+      transition: width 0.24s ease;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,0.88);
+      box-shadow: var(--shadow-soft);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 14px;
+      backdrop-filter: blur(14px);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 13px;
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 950;
+      letter-spacing: -0.25px;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      color: #475467;
+      font-size: 12px;
+      font-weight: 850;
+      padding-left: 2px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: rgba(255,255,255,0.94);
+      color: var(--text);
+      outline: none;
+      padding: 12px 13px;
+      font-size: 16px;
+      transition: 0.18s ease;
+    }
+
+    textarea {
+      min-height: 76px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: rgba(37, 99, 235, 0.72);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 7px;
+      min-height: 46px;
+      border-radius: 15px;
+      padding: 12px 14px;
+      font-weight: 950;
+      transition: transform 0.12s ease, opacity 0.18s ease, filter 0.18s ease;
+      user-select: none;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      color: #fff;
+      background: linear-gradient(135deg, var(--primary), #1d4ed8);
+      box-shadow: 0 12px 22px rgba(37, 99, 235, 0.22);
+    }
+
+    .btn-secondary {
+      color: #1e40af;
+      background: #eff6ff;
+    }
+
+    .btn-danger {
+      color: #b42318;
+      background: var(--danger-soft);
+    }
+
+    .btn-muted {
+      color: #344054;
+      background: #f2f4f7;
+    }
+
+    .mini-btn {
+      border-radius: 999px;
+      padding: 8px 11px;
+      background: #f2f4f7;
+      color: #344054;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .quick-card {
+      padding: 13px;
+      border-radius: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .quick-card .num {
+      font-size: 18px;
+      font-weight: 950;
+      margin-top: 5px;
+      word-break: break-all;
+    }
+
+    .quick-card .label {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .expense-item, .daily-item, .member-item, .settle-item {
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 13px;
+      box-shadow: 0 5px 13px rgba(16, 24, 40, 0.04);
+    }
+
+    .expense-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+    }
+
+    .item-name {
+      font-size: 15px;
+      font-weight: 950;
+      margin-bottom: 7px;
+      word-break: break-word;
+    }
+
+    .item-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+      line-height: 1.4;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #3730a3;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .amount-block {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .amount-main {
+      font-size: 18px;
+      font-weight: 950;
+    }
+
+    .amount-sub {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .delete-link {
+      display: inline-flex;
+      margin-top: 9px;
+      color: #b42318;
+      background: #fff1f3;
+      border-radius: 999px;
+      padding: 7px 9px;
+      font-size: 12px;
+      font-weight: 950;
+    }
+
+    .empty {
+      padding: 28px 10px;
+      text-align: center;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .bar-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 74px 1fr 58px;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .bar-track {
+      height: 12px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #eaecf0;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--primary-2), var(--primary));
+      width: 0%;
+      transition: width 0.25s ease;
+    }
+
+    .daily-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .daily-date {
+      font-weight: 950;
+      margin-bottom: 3px;
+    }
+
+    .daily-count {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .daily-amount {
+      font-size: 17px;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .member-item, .settle-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar-name {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #dbeafe, #ccfbf1);
+      color: #1d4ed8;
+      font-weight: 950;
+      flex: 0 0 auto;
+    }
+
+    .member-name {
+      font-weight: 950;
+      word-break: break-word;
+    }
+
+    .settle-positive {
+      color: var(--success);
+      font-weight: 950;
+    }
+
+    .settle-negative {
+      color: #f97316;
+      font-weight: 950;
+    }
+
+    .settle-neutral {
+      color: var(--muted);
+      font-weight: 950;
+    }
+
+    .map-preview {
+      overflow: hidden;
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: #eef2ff;
+      min-height: 240px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.45);
+    }
+
+    .map-preview iframe {
+      width: 100%;
+      height: 260px;
+      border: 0;
+      display: block;
+    }
+
+    .map-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .location-line {
+      margin-top: 7px;
+      color: #2563eb;
+      font-size: 12px;
+      font-weight: 850;
+      line-height: 1.45;
+    }
+
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .settings-row:last-child {
+      border-bottom: 0;
+    }
+
+    .settings-row strong {
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .settings-row span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 50%;
+      bottom: 12px;
+      transform: translateX(-50%);
+      width: min(560px, calc(100% - 24px));
+      height: var(--bottom-nav-height);
+      border-radius: 26px;
+      background: rgba(255,255,255,0.92);
+      border: 1px solid rgba(255,255,255,0.92);
+      box-shadow: 0 18px 40px rgba(16, 24, 40, 0.18);
+      backdrop-filter: blur(18px);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      padding: 8px;
+      z-index: 50;
+    }
+
+    .nav-btn {
+      border-radius: 18px;
+      background: transparent;
+      color: var(--muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      font-size: 11px;
+      font-weight: 900;
+      transition: 0.18s ease;
+    }
+
+    .nav-btn .icon {
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .nav-btn.active {
+      color: #fff;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.20);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 98px;
+      transform: translateX(-50%) translateY(16px);
+      max-width: calc(100% - 32px);
+      border-radius: 999px;
+      padding: 12px 16px;
+      background: rgba(16, 24, 40, 0.93);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 800;
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.2s ease;
+      z-index: 80;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 420px) {
+      .grid-2, .hero-stats, .btn-row {
+        grid-template-columns: 1fr;
+      }
+
+      .quick-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .trip-title {
+        font-size: 24px;
+      }
+
+      .bottom-nav {
+        bottom: 8px;
+        width: calc(100% - 16px);
+      }
+
+      .bar-row {
+        grid-template-columns: 68px 1fr 54px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">✈️</div>
+        <div>
+          <div class="brand-title">旅伴記帳</div>
+          <div class="brand-subtitle">Travel Budget Planner</div>
+        </div>
+      </div>
+      <div class="pill" id="activeTripPill">尚未建立行程</div>
+    </header>
+
+    <section id="home" class="page active">
+      <div class="hero">
+        <h1 class="trip-title" id="homeTripName">建立你的第一趟旅程</h1>
+        <div class="trip-meta">
+          <span id="homeTripPlace">國家 / 城市</span>
+          <span>•</span>
+          <span id="homeTripDate">開始日期 - 結束日期</span>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-label">總支出</div>
+            <div class="hero-value" id="homeTotalSpent">NT$0</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-label">剩餘預算</div>
+            <div class="hero-value" id="homeRemainingBudget">NT$0</div>
+          </div>
+        </div>
+        <div class="budget-progress">
+          <div class="progress-top">
+            <span>預算使用率</span>
+            <span id="budgetPercent">0%</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" id="budgetFill"></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">新增 / 編輯旅遊行程</h2>
+          <button class="mini-btn" type="button" onclick="fillTodayTrip()">快速填日期</button>
+        </div>
+        <form id="tripForm">
+          <div class="grid-2">
+            <div class="field full">
+              <label for="tripName">行程名稱</label>
+              <input id="tripName" type="text" placeholder="例如：日本東北 18 日自由行" required />
+            </div>
+            <div class="field full">
+              <label for="tripPlace">國家 / 城市</label>
+              <input id="tripPlace" type="text" placeholder="例如：日本 / 仙台、東京" required />
+            </div>
+            <div class="field">
+              <label for="tripStart">開始日期</label>
+              <input id="tripStart" type="date" required />
+            </div>
+            <div class="field">
+              <label for="tripEnd">結束日期</label>
+              <input id="tripEnd" type="date" required />
+            </div>
+            <div class="field full">
+              <label for="tripBudget">預算金額（以統計基準幣別計算）</label>
+              <input id="tripBudget" type="number" min="0" step="1" inputmode="decimal" placeholder="例如：60000" required />
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" type="submit">儲存行程</button>
+            <button class="btn btn-secondary" type="button" onclick="goPage('expense')">去記帳</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="quick-grid">
+        <div class="quick-card">
+          <div class="label">支出筆數</div>
+          <div class="num" id="homeExpenseCount">0</div>
+        </div>
+        <div class="quick-card">
+          <div class="label">旅伴人數</div>
+          <div class="num" id="homeMemberCount">1</div>
+        </div>
+        <div class="quick-card">
+          <div class="label">平均每日</div>
+          <div class="num" id="homeDailyAvg">NT$0</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="expense" class="page">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">新增支出</h2>
+          <button class="mini-btn" type="button" onclick="fillTodayExpense()">今天</button>
+        </div>
+        <form id="expenseForm">
+          <div class="grid-2">
+            <div class="field">
+              <label for="expenseDate">日期</label>
+              <input id="expenseDate" type="date" required />
+            </div>
+            <div class="field">
+              <label for="expenseAmount">金額</label>
+              <input id="expenseAmount" type="number" min="0" step="1" inputmode="decimal" placeholder="1200" required />
+            </div>
+            <div class="field full">
+              <label for="expenseTitle">項目名稱</label>
+              <input id="expenseTitle" type="text" placeholder="例如：仙台牛舌晚餐" required />
+            </div>
+            <div class="field full">
+              <label for="expensePlace">景點 / 城市 / 地區</label>
+              <input id="expensePlace" type="text" placeholder="例如：大阪城、神戶、京都車站" required />
+            </div>
+            <div class="field full">
+              <label>所屬行程</label>
+              <input id="expenseTripView" type="text" value="目前行程" disabled />
+            </div>
+            <div class="field">
+              <label for="currency">幣別</label>
+              <select id="currency">
+                <option value="TWD">TWD 台幣</option>
+                <option value="JPY">JPY 日圓</option>
+                <option value="USD">USD 美元</option>
+                <option value="KRW">KRW 韓元</option>
+                <option value="EUR">EUR 歐元</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="category">分類</label>
+              <select id="category">
+                <option value="住宿">住宿</option>
+                <option value="交通">交通</option>
+                <option value="餐飲">餐飲</option>
+                <option value="購物">購物</option>
+                <option value="門票">門票</option>
+                <option value="其他">其他</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label for="payer">付款人</label>
+              <select id="payer"></select>
+            </div>
+            <div class="field full">
+              <label for="expenseNote">備註</label>
+              <textarea id="expenseNote" placeholder="例如：大家一起吃，楊仲凱先付款"></textarea>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" type="submit">＋ 新增支出</button>
+            <button class="btn btn-muted" type="button" onclick="resetExpenseForm()">清空欄位</button>
+          </div>
+        </form>
+      </div>
+
+
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">支出紀錄</h2>
+          <select id="expenseFilter" style="max-width:150px; font-size:14px; padding:9px 10px;">
+            <option value="全部">全部分類</option>
+            <option value="住宿">住宿</option>
+            <option value="交通">交通</option>
+            <option value="餐飲">餐飲</option>
+            <option value="購物">購物</option>
+            <option value="門票">門票</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+        <div class="list" id="expenseList"></div>
+      </div>
+    </section>
+
+    <section id="stats" class="page">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">統計總覽</h2>
+          <span class="tag">自動更新</span>
+        </div>
+        <div class="quick-grid">
+          <div class="quick-card">
+            <div class="label">總支出</div>
+            <div class="num" id="statsTotal">NT$0</div>
+          </div>
+          <div class="quick-card">
+            <div class="label">剩餘預算</div>
+            <div class="num" id="statsRemain">NT$0</div>
+          </div>
+          <div class="quick-card">
+            <div class="label">最高分類</div>
+            <div class="num" id="statsTopCategory">-</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">各分類支出比例</h2>
+        </div>
+        <div class="bar-list" id="categoryStats"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">景點 / 城市花費統計</h2>
+          <span class="tag">例如大阪城、神戶</span>
+        </div>
+        <div class="list" id="placeStats"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">每日支出列表</h2>
+        </div>
+        <div class="list" id="dailyStats"></div>
+      </div>
+    </section>
+
+    <section id="split" class="page">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">新增同行旅伴</h2>
+        </div>
+        <form id="memberForm">
+          <div class="field">
+            <label for="memberName">旅伴姓名</label>
+            <input id="memberName" type="text" placeholder="例如：小明" required />
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" type="submit">＋ 新增旅伴</button>
+            <button class="btn btn-muted" type="button" onclick="document.getElementById('memberName').value=''">清空</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">旅伴清單</h2>
+          <span class="hint">付款人會從這裡選擇</span>
+        </div>
+        <div class="list" id="memberList"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">分帳結果</h2>
+        </div>
+        <p class="hint">目前採用平均分帳：每筆支出由付款人先墊付，總支出平均分給所有旅伴。</p>
+        <div class="list" id="settleList"></div>
+      </div>
+    </section>
+
+    <section id="settings" class="page">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">設定</h2>
+        </div>
+        <div class="settings-row">
+          <div>
+            <strong>資料儲存</strong>
+            <span>所有資料儲存在目前裝置的瀏覽器 localStorage，不會上傳雲端。</span>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div>
+            <strong>統計基準幣別</strong>
+            <span>統計、預算、分類比例、每日支出與分帳，都會換算成這個幣別計算。</span>
+          </div>
+          <select id="baseCurrency" style="max-width:130px; font-size:14px; padding:9px 10px;">
+            <option value="TWD">TWD</option>
+            <option value="JPY">JPY</option>
+            <option value="USD">USD</option>
+            <option value="KRW">KRW</option>
+            <option value="EUR">EUR</option>
+          </select>
+        </div>
+        <div class="settings-row" style="display:block;">
+          <div style="margin-bottom:12px;">
+            <strong>匯率設定</strong>
+            <span>請輸入「1 單位外幣 = 多少基準幣別」。例如基準幣別是 TWD，JPY 填 0.21 代表 1 日圓約等於 0.21 台幣。</span>
+          </div>
+          <div class="grid-2">
+            <div class="field"><label for="rateTWD">TWD 匯率</label><input id="rateTWD" type="number" min="0" step="0.0001" inputmode="decimal" /></div>
+            <div class="field"><label for="rateJPY">JPY 匯率</label><input id="rateJPY" type="number" min="0" step="0.0001" inputmode="decimal" /></div>
+            <div class="field"><label for="rateUSD">USD 匯率</label><input id="rateUSD" type="number" min="0" step="0.0001" inputmode="decimal" /></div>
+            <div class="field"><label for="rateKRW">KRW 匯率</label><input id="rateKRW" type="number" min="0" step="0.0001" inputmode="decimal" /></div>
+            <div class="field full"><label for="rateEUR">EUR 匯率</label><input id="rateEUR" type="number" min="0" step="0.0001" inputmode="decimal" /></div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" type="button" onclick="saveRates()">儲存匯率</button>
+            <button class="btn btn-muted" type="button" onclick="resetRates()">恢復預設</button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div>
+            <strong>匯出資料</strong>
+            <span>下載 CSV，可用 Excel 或 Google 試算表開啟。</span>
+          </div>
+          <button class="mini-btn" onclick="exportCSV()">匯出</button>
+        </div>
+        <div class="settings-row">
+          <div>
+            <strong>清除全部資料</strong>
+            <span>刪除行程、支出、旅伴與分帳資料。</span>
+          </div>
+          <button class="mini-btn" style="color:#b42318;background:#fff1f3;" onclick="clearAllData()">清除</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="主選單">
+    <button class="nav-btn active" data-page="home"><span class="icon">🏠</span><span>首頁</span></button>
+    <button class="nav-btn" data-page="expense"><span class="icon">🧾</span><span>記帳</span></button>
+    <button class="nav-btn" data-page="stats"><span class="icon">📊</span><span>統計</span></button>
+    <button class="nav-btn" data-page="split"><span class="icon">🤝</span><span>分帳</span></button>
+    <button class="nav-btn" data-page="settings"><span class="icon">⚙️</span><span>設定</span></button>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const STORAGE_KEY = "travel-budget-pro-v2";
+    const DEFAULT_DATA = {
+      trip: null,
+      members: ["我"],
+      expenses: [],
+      settings: {
+        baseCurrency: "TWD",
+        rates: {
+          TWD: 1,
+          JPY: 0.21,
+          USD: 32,
+          KRW: 0.024,
+          EUR: 35
+        }
+      }
+    };
+
+    const currencySymbols = {
+      TWD: "NT$",
+      JPY: "¥",
+      USD: "$",
+      KRW: "₩",
+      EUR: "€"
+    };
+
+    let data = loadData();
+
+    const els = {
+      activeTripPill: document.getElementById("activeTripPill"),
+      homeTripName: document.getElementById("homeTripName"),
+      homeTripPlace: document.getElementById("homeTripPlace"),
+      homeTripDate: document.getElementById("homeTripDate"),
+      homeTotalSpent: document.getElementById("homeTotalSpent"),
+      homeRemainingBudget: document.getElementById("homeRemainingBudget"),
+      budgetPercent: document.getElementById("budgetPercent"),
+      budgetFill: document.getElementById("budgetFill"),
+      homeExpenseCount: document.getElementById("homeExpenseCount"),
+      homeMemberCount: document.getElementById("homeMemberCount"),
+      homeDailyAvg: document.getElementById("homeDailyAvg"),
+      payer: document.getElementById("payer"),
+      expenseList: document.getElementById("expenseList"),
+      memberList: document.getElementById("memberList"),
+      settleList: document.getElementById("settleList"),
+      categoryStats: document.getElementById("categoryStats"),
+      dailyStats: document.getElementById("dailyStats"),
+      placeStats: document.getElementById("placeStats"),
+      statsTotal: document.getElementById("statsTotal"),
+      statsRemain: document.getElementById("statsRemain"),
+      statsTopCategory: document.getElementById("statsTopCategory"),
+      toast: document.getElementById("toast")
+    };
+
+    function loadData() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (!parsed) return structuredCloneSafe(DEFAULT_DATA);
+        return {
+          trip: parsed.trip || null,
+          members: parsed.members && parsed.members.length ? parsed.members : ["我"],
+          expenses: parsed.expenses || [],
+          settings: {
+            baseCurrency: parsed.settings?.baseCurrency || "TWD",
+            rates: {
+              ...DEFAULT_DATA.settings.rates,
+              ...(parsed.settings?.rates || {})
+            }
+          }
+        };
+      } catch (error) {
+        return structuredCloneSafe(DEFAULT_DATA);
+      }
+    }
+
+    function structuredCloneSafe(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function today() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    }
+
+    function showToast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add("show");
+      setTimeout(() => els.toast.classList.remove("show"), 1700);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = String(text ?? "");
+      return div.innerHTML;
+    }
+
+    function money(amount, currency = baseCurrency()) {
+      const symbol = currencySymbols[currency] || "";
+      const value = Number(amount || 0);
+      const maximumFractionDigits = Math.abs(value) < 100 && value % 1 !== 0 ? 2 : 0;
+      return symbol + new Intl.NumberFormat("zh-TW", { maximumFractionDigits }).format(value);
+    }
+
+    function baseCurrency() {
+      return data.settings?.baseCurrency || "TWD";
+    }
+
+    function rate(currency) {
+      return Number(data.settings?.rates?.[currency] || 0);
+    }
+
+    function convertToBase(amount, currency) {
+      const selectedRate = rate(currency);
+      if (!selectedRate) return 0;
+      return Number(amount || 0) * selectedRate;
+    }
+
+    function displayConverted(item) {
+      const base = baseCurrency();
+      const converted = convertToBase(item.amount, item.currency);
+      if (item.currency === base) return money(item.amount, item.currency);
+      return `${money(item.amount, item.currency)} ≈ ${money(converted, base)}`;
+    }
+
+    function totalSpent() {
+      return data.expenses.reduce((sum, item) => sum + convertToBase(item.amount, item.currency), 0);
+    }
+
+    function budget() {
+      return Number(data.trip?.budget || 0);
+    }
+
+    function remainingBudget() {
+      return budget() - totalSpent();
+    }
+
+    function tripDays() {
+      if (!data.trip?.start || !data.trip?.end) return 1;
+      const start = new Date(data.trip.start);
+      const end = new Date(data.trip.end);
+      const diff = Math.round((end - start) / 86400000) + 1;
+      return Math.max(diff, 1);
+    }
+
+    function goPage(pageId) {
+      document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
+      document.getElementById(pageId).classList.add("active");
+      document.querySelectorAll(".nav-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.page === pageId);
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    document.querySelectorAll(".nav-btn").forEach(btn => {
+      btn.addEventListener("click", () => goPage(btn.dataset.page));
+    });
+
+    function fillTodayTrip() {
+      document.getElementById("tripStart").value = today();
+      document.getElementById("tripEnd").value = today();
+      showToast("已填入今天日期");
+    }
+
+    function fillTodayExpense() {
+      document.getElementById("expenseDate").value = today();
+      showToast("已填入今天日期");
+    }
+
+    function resetExpenseForm() {
+      document.getElementById("expenseForm").reset();
+      document.getElementById("expenseDate").value = today();
+      document.getElementById("currency").value = "TWD";
+      document.getElementById("category").value = "餐飲";
+      renderPayerOptions();
+    }
+
+    document.getElementById("tripForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const trip = {
+        name: document.getElementById("tripName").value.trim(),
+        place: document.getElementById("tripPlace").value.trim(),
+        start: document.getElementById("tripStart").value,
+        end: document.getElementById("tripEnd").value,
+        budget: Number(document.getElementById("tripBudget").value || 0)
+      };
+
+      if (!trip.name || !trip.place || !trip.start || !trip.end || trip.budget < 0) {
+        showToast("請完整填寫行程資料");
+        return;
+      }
+      if (trip.end < trip.start) {
+        showToast("結束日期不能早於開始日期");
+        return;
+      }
+
+      data.trip = trip;
+      saveData();
+      renderAll();
+      showToast("行程已儲存");
+    });
+
+    document.getElementById("expenseForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const expense = {
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+        date: document.getElementById("expenseDate").value,
+        title: document.getElementById("expenseTitle").value.trim(),
+        amount: Number(document.getElementById("expenseAmount").value || 0),
+        currency: document.getElementById("currency").value,
+        category: document.getElementById("category").value,
+        payer: document.getElementById("payer").value,
+        note: document.getElementById("expenseNote").value.trim(),
+        tripName: data.trip?.name || "未建立行程",
+        place: document.getElementById("expensePlace").value.trim(),
+        createdAt: new Date().toISOString()
+      };
+
+      if (!expense.date || !expense.title || expense.amount <= 0 || !expense.payer || !expense.place) {
+        showToast("請完整填寫支出資料，包含景點 / 城市");
+        return;
+      }
+
+      data.expenses.push(expense);
+      saveData();
+      renderAll();
+      resetExpenseForm();
+      showToast("已新增支出");
+    });
+
+    document.getElementById("memberForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const input = document.getElementById("memberName");
+      const name = input.value.trim();
+      if (!name) return;
+      if (data.members.includes(name)) {
+        showToast("此旅伴已存在");
+        return;
+      }
+      data.members.push(name);
+      saveData();
+      input.value = "";
+      renderAll();
+      showToast("已新增旅伴");
+    });
+
+    document.getElementById("expenseFilter").addEventListener("change", renderExpenses);
+
+    function renderTripForm() {
+      if (!data.trip) return;
+      document.getElementById("tripName").value = data.trip.name || "";
+      document.getElementById("tripPlace").value = data.trip.place || "";
+      document.getElementById("tripStart").value = data.trip.start || "";
+      document.getElementById("tripEnd").value = data.trip.end || "";
+      document.getElementById("tripBudget").value = data.trip.budget || "";
+    }
+
+    function renderHome() {
+      const total = totalSpent();
+      const remain = remainingBudget();
+      const b = budget();
+      const percent = b > 0 ? Math.min(Math.round((total / b) * 100), 999) : 0;
+
+      els.activeTripPill.textContent = data.trip ? data.trip.name : "尚未建立行程";
+      els.homeTripName.textContent = data.trip?.name || "建立你的第一趟旅程";
+      els.homeTripPlace.textContent = data.trip?.place || "國家 / 城市";
+      els.homeTripDate.textContent = data.trip ? `${data.trip.start} - ${data.trip.end}` : "開始日期 - 結束日期";
+      els.homeTotalSpent.textContent = money(total);
+      els.homeRemainingBudget.textContent = money(remain);
+      els.budgetPercent.textContent = `${percent}%`;
+      els.budgetFill.style.width = `${Math.min(percent, 100)}%`;
+      els.homeExpenseCount.textContent = data.expenses.length;
+      els.homeMemberCount.textContent = data.members.length;
+      els.homeDailyAvg.textContent = money(total / tripDays());
+      els.homeRemainingBudget.style.color = remain < 0 ? "#fee2e2" : "#fff";
+    }
+
+    function renderPayerOptions() {
+      els.payer.innerHTML = data.members.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("");
+      const tripView = document.getElementById("expenseTripView");
+      if (tripView) tripView.value = data.trip?.name || "尚未建立行程";
+    }
+
+    function renderExpenses() {
+      const filter = document.getElementById("expenseFilter").value;
+      let list = [...data.expenses].sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
+      if (filter !== "全部") list = list.filter(item => item.category === filter);
+
+      if (!list.length) {
+        els.expenseList.innerHTML = `<div class="empty">尚無支出紀錄<br>到「記帳」頁新增第一筆旅遊花費。</div>`;
+        return;
+      }
+
+      els.expenseList.innerHTML = list.map(item => `
+        <article class="expense-item">
+          <div>
+            <div class="item-name">${escapeHtml(item.title)}</div>
+            <div class="item-meta">
+              <span class="tag">${escapeHtml(item.category)}</span>
+              <span>${escapeHtml(item.date)}</span>
+              <span>付款人：${escapeHtml(item.payer)}</span>
+              <span>地點：${escapeHtml(item.place || "未分類地點")}</span>
+              ${item.note ? `<span>備註：${escapeHtml(item.note)}</span>` : ""}
+              <span>行程：${escapeHtml(item.tripName || data.trip?.name || "目前行程")}</span>
+            </div>
+          </div>
+          <div class="amount-block">
+            <div class="amount-main">${displayConverted(item)}</div>
+            <div class="amount-sub">原幣別 ${escapeHtml(item.currency)}｜統計 ${escapeHtml(baseCurrency())}</div>
+            <button class="delete-link" onclick="deleteExpense('${item.id}')">刪除</button>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function deleteExpense(id) {
+      const target = data.expenses.find(item => item.id === id);
+      if (!target) return;
+      if (!confirm(`確定刪除「${target.title}」這筆支出嗎？`)) return;
+      data.expenses = data.expenses.filter(item => item.id !== id);
+      saveData();
+      renderAll();
+      showToast("已刪除支出");
+    }
+
+    function renderCategoryStats() {
+      const totals = {};
+      data.expenses.forEach(item => {
+        totals[item.category] = (totals[item.category] || 0) + convertToBase(item.amount, item.currency);
+      });
+      const entries = Object.entries(totals).sort((a, b) => b[1] - a[1]);
+      const total = totalSpent();
+
+      els.statsTotal.textContent = money(total);
+      els.statsRemain.textContent = money(remainingBudget());
+      els.statsTopCategory.textContent = entries[0]?.[0] || "-";
+
+      if (!entries.length) {
+        els.categoryStats.innerHTML = `<div class="empty">尚無資料<br>新增支出後會顯示各分類比例。</div>`;
+        return;
+      }
+
+      els.categoryStats.innerHTML = entries.map(([category, amount]) => {
+        const percent = total > 0 ? Math.round((amount / total) * 100) : 0;
+        return `
+          <div class="bar-row">
+            <span>${escapeHtml(category)}</span>
+            <div class="bar-track"><div class="bar-fill" style="width:${percent}%"></div></div>
+            <span style="text-align:right;">${percent}%</span>
+          </div>
+          <div class="hint" style="margin-top:-8px; padding-left:2px;">${money(amount)}</div>
+        `;
+      }).join("");
+    }
+
+    function renderPlaceStats() {
+      const totals = {};
+      data.expenses.forEach(item => {
+        const place = item.place || "未分類地點";
+        if (!totals[place]) totals[place] = { amount: 0, count: 0, items: [] };
+        totals[place].amount += convertToBase(item.amount, item.currency);
+        totals[place].count += 1;
+        totals[place].items.push(item);
+      });
+
+      const entries = Object.entries(totals).sort((a, b) => b[1].amount - a[1].amount);
+
+      if (!entries.length) {
+        els.placeStats.innerHTML = `<div class="empty">尚無景點 / 城市統計。<br>新增支出時填入「大阪城」、「神戶」等地點後，這裡會自動加總。</div>`;
+        return;
+      }
+
+      els.placeStats.innerHTML = entries.map(([place, item]) => {
+        const details = item.items
+          .sort((a, b) => b.date.localeCompare(a.date))
+          .map(exp => `<div class="hint" style="margin-top:6px;">• ${escapeHtml(exp.date)}｜${escapeHtml(exp.title)}｜${escapeHtml(exp.category)}｜${displayConverted(exp)}</div>`)
+          .join("");
+        return `
+          <div class="daily-item" style="display:block;">
+            <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;">
+              <div>
+                <div class="daily-date">${escapeHtml(place)}</div>
+                <div class="daily-count">${item.count} 筆支出</div>
+              </div>
+              <div class="daily-amount">${money(item.amount)}</div>
+            </div>
+            ${details}
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderDailyStats() {
+      const totals = {};
+      data.expenses.forEach(item => {
+        if (!totals[item.date]) totals[item.date] = { amount: 0, count: 0, items: [] };
+        totals[item.date].amount += convertToBase(item.amount, item.currency);
+        totals[item.date].count += 1;
+        totals[item.date].items.push(item);
+      });
+      const entries = Object.entries(totals).sort((a, b) => b[0].localeCompare(a[0]));
+
+      if (!entries.length) {
+        els.dailyStats.innerHTML = `<div class="empty">尚無每日支出資料。</div>`;
+        return;
+      }
+
+      els.dailyStats.innerHTML = entries.map(([date, item]) => {
+        const details = item.items
+          .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+          .map(exp => `<div class="hint" style="margin-top:6px;">• ${escapeHtml(exp.title)}｜${escapeHtml(exp.category)}｜${money(convertToBase(exp.amount, exp.currency))}</div>`)
+          .join("");
+        return `
+          <div class="daily-item" style="display:block;">
+            <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;">
+              <div>
+                <div class="daily-date">${escapeHtml(date)}</div>
+                <div class="daily-count">${item.count} 筆支出</div>
+              </div>
+              <div class="daily-amount">${money(item.amount)}</div>
+            </div>
+            ${details}
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderMembers() {
+      els.memberList.innerHTML = data.members.map((name, index) => `
+        <div class="member-item">
+          <div class="avatar-name">
+            <div class="avatar">${escapeHtml(name.slice(0, 1))}</div>
+            <div class="member-name">${escapeHtml(name)}</div>
+          </div>
+          ${index === 0 ? `<span class="tag">預設</span>` : `<button class="mini-btn" style="color:#b42318;background:#fff1f3;" onclick="deleteMember('${escapeHtml(name)}')">刪除</button>`}
+        </div>
+      `).join("");
+    }
+
+    function deleteMember(name) {
+      const hasPaid = data.expenses.some(item => item.payer === name);
+      if (hasPaid) {
+        showToast("此旅伴已有付款紀錄，不能刪除");
+        return;
+      }
+      if (!confirm(`確定刪除旅伴「${name}」嗎？`)) return;
+      data.members = data.members.filter(member => member !== name);
+      saveData();
+      renderAll();
+      showToast("已刪除旅伴");
+    }
+
+    function renderSettlement() {
+      const members = data.members;
+      const total = totalSpent();
+      const share = members.length ? total / members.length : 0;
+      const paidMap = Object.fromEntries(members.map(name => [name, 0]));
+
+      data.expenses.forEach(item => {
+        if (!paidMap[item.payer]) paidMap[item.payer] = 0;
+        paidMap[item.payer] += convertToBase(item.amount, item.currency);
+      });
+
+      if (!data.expenses.length) {
+        els.settleList.innerHTML = `<div class="empty">尚無分帳資料<br>新增支出並選擇付款人後，會自動計算應收應付。</div>`;
+        return;
+      }
+
+      els.settleList.innerHTML = members.map(name => {
+        const paid = paidMap[name] || 0;
+        const balance = paid - share;
+        const cls = balance > 0 ? "settle-positive" : balance < 0 ? "settle-negative" : "settle-neutral";
+        const label = balance > 0 ? "應收" : balance < 0 ? "應付" : "已平衡";
+        return `
+          <div class="settle-item">
+            <div class="avatar-name">
+              <div class="avatar">${escapeHtml(name.slice(0, 1))}</div>
+              <div>
+                <div class="member-name">${escapeHtml(name)}</div>
+                <div class="hint">已付款 ${money(paid)}｜平均應付 ${money(share)}</div>
+              </div>
+            </div>
+            <div class="${cls}" style="white-space:nowrap;">${label}<br>${money(Math.abs(balance))}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function exportCSV() {
+      const rows = [
+        ["行程名稱", "景點/城市/地區", "日期", "項目名稱", "原金額", "原幣別", "換算後金額", "統計基準幣別", "分類", "付款人", "備註"],
+        ...data.expenses.map(item => [item.tripName || data.trip?.name || "目前行程", item.place || "未分類地點", item.date, item.title, item.amount, item.currency, convertToBase(item.amount, item.currency), baseCurrency(), item.category, item.payer, item.note || ""])
+      ];
+      if (rows.length === 1) {
+        showToast("沒有支出資料可匯出");
+        return;
+      }
+      const csv = rows.map(row => row.map(cell => `"${String(cell).replaceAll('"', '""')}"`).join(",")).join("\n");
+      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `旅遊記帳_${today()}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast("已匯出 CSV");
+    }
+
+    function clearAllData() {
+      if (!confirm("確定清除所有資料嗎？此動作無法復原。")) return;
+      data = structuredCloneSafe(DEFAULT_DATA);
+      saveData();
+      renderAll();
+      resetExpenseForm();
+      showToast("已清除全部資料");
+    }
+
+    let selectedMapExpenseId = null;
+
+    function hasMapInfo(item) {
+      return Boolean(item.location || item.mapUrl || (item.lat !== null && item.lng !== null && item.lat !== undefined && item.lng !== undefined));
+    }
+
+    function buildMapQuery(item) {
+      if (item.lat !== null && item.lng !== null && item.lat !== undefined && item.lng !== undefined) {
+        return `${item.lat},${item.lng}`;
+      }
+      return item.location || item.title || data.trip?.place || "";
+    }
+
+    function buildMapUrl(item) {
+      if (item?.mapUrl) return item.mapUrl;
+      const query = encodeURIComponent(buildMapQuery(item || {}));
+      return query ? `https://www.google.com/maps/search/?api=1&query=${query}` : "";
+    }
+
+    function buildEmbedUrl(item) {
+      const query = encodeURIComponent(buildMapQuery(item || {}));
+      return query ? `https://maps.google.com/maps?q=${query}&z=16&output=embed` : "";
+    }
+
+    function getMappableExpenses() {
+      return data.expenses.filter(hasMapInfo).sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
+    }
+
+    function showExpenseOnMap(id) {
+      selectedMapExpenseId = id;
+      renderMapPanel();
+      goPage("expense");
+    }
+
+    function renderMapPanel() {
+      const frame = document.getElementById("mapFrame");
+      const hint = document.getElementById("mapHint");
+      const mappable = getMappableExpenses();
+      if (!mappable.length) {
+        frame.removeAttribute("src");
+        hint.textContent = "尚未有消費地點。新增支出時填入地點名稱、經緯度或 Google Maps 連結即可標記。";
+        return;
+      }
+      const selected = data.expenses.find(item => item.id === selectedMapExpenseId && hasMapInfo(item)) || mappable[0];
+      selectedMapExpenseId = selected.id;
+      frame.src = buildEmbedUrl(selected);
+      hint.textContent = `目前顯示：${selected.title}${selected.location ? "｜" + selected.location : ""}｜${money(convertToBase(selected.amount, selected.currency))}`;
+    }
+
+    function openSelectedMap() {
+      const selected = data.expenses.find(item => item.id === selectedMapExpenseId && hasMapInfo(item)) || getMappableExpenses()[0];
+      if (!selected) {
+        showToast("尚無可開啟的地圖位置");
+        return;
+      }
+      window.open(buildMapUrl(selected), "_blank");
+    }
+
+    async function copySelectedMapLink() {
+      const selected = data.expenses.find(item => item.id === selectedMapExpenseId && hasMapInfo(item)) || getMappableExpenses()[0];
+      if (!selected) {
+        showToast("尚無可複製的地圖連結");
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(buildMapUrl(selected));
+        showToast("已複製地圖連結");
+      } catch (error) {
+        showToast("無法複製，請改用在 Google Maps 開啟");
+      }
+    }
+
+    function getCurrentLocation() {
+      if (!navigator.geolocation) {
+        showToast("此裝置不支援定位功能");
+        return;
+      }
+      showToast("正在取得目前位置...");
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          document.getElementById("expenseLat").value = position.coords.latitude.toFixed(6);
+          document.getElementById("expenseLng").value = position.coords.longitude.toFixed(6);
+          if (!document.getElementById("expenseLocation").value.trim()) {
+            document.getElementById("expenseLocation").value = "目前位置";
+          }
+          showToast("已填入目前位置");
+        },
+        () => showToast("定位失敗，請確認瀏覽器定位權限"),
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }
+
+    function renderSettings() {
+      document.getElementById("baseCurrency").value = baseCurrency();
+      ["TWD", "JPY", "USD", "KRW", "EUR"].forEach(code => {
+        const input = document.getElementById(`rate${code}`);
+        if (input) input.value = data.settings.rates[code] ?? "";
+      });
+    }
+
+    function saveRates() {
+      const newBase = document.getElementById("baseCurrency").value;
+      const newRates = {};
+      for (const code of ["TWD", "JPY", "USD", "KRW", "EUR"]) {
+        const value = Number(document.getElementById(`rate${code}`).value || 0);
+        if (value <= 0) {
+          showToast(`${code} 匯率必須大於 0`);
+          return;
+        }
+        newRates[code] = value;
+      }
+      data.settings.baseCurrency = newBase;
+      data.settings.rates = newRates;
+      saveData();
+      renderAll();
+      showToast("匯率與基準幣別已更新");
+    }
+
+    function resetRates() {
+      if (!confirm("確定恢復預設匯率嗎？")) return;
+      data.settings.rates = structuredCloneSafe(DEFAULT_DATA.settings.rates);
+      data.settings.baseCurrency = "TWD";
+      saveData();
+      renderAll();
+      showToast("已恢復預設匯率");
+    }
+
+    document.getElementById("baseCurrency").addEventListener("change", () => {
+      showToast("更換基準幣別後，請確認並儲存匯率");
+    });
+
+    function renderAll() {
+      renderSettings();
+      renderTripForm();
+      renderHome();
+      renderPayerOptions();
+      renderExpenses();
+      renderCategoryStats();
+      renderPlaceStats();
+      renderDailyStats();
+      renderMembers();
+      renderSettlement();
+    }
+
+    resetExpenseForm();
+    renderAll();
+  </script>
+</body>
+</html>
